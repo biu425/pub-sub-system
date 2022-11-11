@@ -28,6 +28,6 @@ public class TopicListener {
                         containerProperties);
         container.start();
 
-        return "good";
+        return "Message consumed.";
     }
 }
