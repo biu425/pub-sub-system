@@ -1,6 +1,6 @@
 package com.kafka.springbootkafkaApplication.controller;
 
-import com.kafka.springbootkafkaApplication.service.KafkaConsumer;
+import com.kafka.springbootkafkaApplication.service.ListenerWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("subscribe")
+@RequestMapping("subscriber")
 public class TopicListener {
     @Autowired
     private ConsumerFactory<String, String> consumerFactory;
@@ -20,7 +20,7 @@ public class TopicListener {
     @GetMapping("/fetch/{topic}")
     public String fetch(@PathVariable("topic") final String topic){
         ContainerProperties containerProperties = new ContainerProperties(topic);
-        containerProperties.setMessageListener(new KafkaConsumer());
+        containerProperties.setMessageListener(new ListenerWorker());
 
         ConcurrentMessageListenerContainer<String, String> container =
                 new ConcurrentMessageListenerContainer<>(
