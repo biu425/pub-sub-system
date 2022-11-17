@@ -17,7 +17,7 @@ public class ListenerWorker implements MessageListener<String, String> {
 //        if (!this.filter(consumerRecord)) {
 //            ((MessageListener)this.delegate).onMessage(consumerRecord);
 //        }
-        System.out.println("********consumer received: ");
-        System.out.println(consumerRecord.value());
+        System.out.println("********consumer received: " + consumerRecord.topic() + " " + consumerRecord.value());
+        System.out.println();
     }
 }
