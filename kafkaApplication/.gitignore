@@ -1,3 +1,5 @@
 docker-compose/broker
 docker-compose/zoo
 target
+.idea
+.mvn
