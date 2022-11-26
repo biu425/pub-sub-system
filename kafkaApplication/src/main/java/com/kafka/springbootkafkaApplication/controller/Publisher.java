@@ -1,5 +1,6 @@
 package com.kafka.springbootkafkaApplication.controller;
 
+import com.kafka.springbootkafkaApplication.model.DBUpdate;
 import com.kafka.springbootkafkaApplication.service.ListenerWorker;
 import org.apache.kafka.clients.admin.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.stereotype.Controller;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,7 @@ import java.util.Collection;
 import java.util.Set;
 
 @RestController
+@Controller
 @RequestMapping("publisher")
 public class Publisher {
     private static String TOPIC_PREFIX = "topicQue_";
@@ -36,7 +39,7 @@ public class Publisher {
     //publish a new topic
     @GetMapping("/newTopic/{topic}")
     public String createNewTopic(@PathVariable("topic") String newTopicName) {
-        String topicNameWithPrefix = addPrefix(newTopicName);
+        String topicNameWithPrefix = TOPIC_PREFIX + newTopicName;
         System.out.printf("*****in createTopic: /newTopic/%s\n", topicNameWithPrefix);
 
         NewTopic newTopic = TopicBuilder.name(topicNameWithPrefix).build();
@@ -57,7 +60,7 @@ public class Publisher {
     private String startListening(String topicName){
         try{
             ContainerProperties containerProperties = new ContainerProperties(topicName);
-            containerProperties.setMessageListener(new ListenerWorker());
+            containerProperties.setMessageListener(new ListenerWorker(this.kafkaTemplate));
 
             ConcurrentMessageListenerContainer<String, String> container =
                     new ConcurrentMessageListenerContainer<>(
@@ -71,18 +74,11 @@ public class Publisher {
         }
     }
 
-    //topic name processing
-    //adding a prefix to the topicName that client provided
-    private String addPrefix(String topicName){
-        return TOPIC_PREFIX + topicName;
-    }
-
-    //TODO: update DB with new topic
 
     //post new message to given topic
     @GetMapping("/post/{topic}/{message}")
     public String post(@PathVariable("message") String message, @PathVariable("topic") String topic){
-        String topicNameWithPrefix = addPrefix(topic);
+        String topicNameWithPrefix = TOPIC_PREFIX+ topic;
         System.out.printf("*****in post: /post/%s/%s\n", topic, message);
 
         ListTopicsResult listTopics = adminClient.listTopics();

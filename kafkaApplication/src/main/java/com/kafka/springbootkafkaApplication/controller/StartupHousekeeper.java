@@ -8,11 +8,13 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.stereotype.Component;
 
 
+import java.sql.SQLException;
 import java.util.Set;
 
 
@@ -29,10 +31,13 @@ public class StartupHousekeeper {
     @Autowired
     private AdminClient adminClient;
 
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate; //<topic, message>
+
     private static String TOPIC_PREFIX = "topicQue_";
 
     @EventListener(ContextRefreshedEvent.class)
-    public void contextRefreshedEvent() {
+    public void contextRefreshedEvent() throws SQLException {
         ListTopicsResult listTopics = adminClient.listTopics();
         try {
             Set<String> names = listTopics.names().get();
@@ -51,7 +56,7 @@ public class StartupHousekeeper {
     private String startListening(String topicName){
         try{
             ContainerProperties containerProperties = new ContainerProperties(topicName);
-            containerProperties.setMessageListener(new ListenerWorker());
+            containerProperties.setMessageListener(new ListenerWorker(this.kafkaTemplate));
 
             ConcurrentMessageListenerContainer<String, String> container =
                     new ConcurrentMessageListenerContainer<>(
