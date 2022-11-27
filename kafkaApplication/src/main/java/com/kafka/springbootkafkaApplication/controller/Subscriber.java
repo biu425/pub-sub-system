@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.*;
 
 @RestController
@@ -83,22 +84,25 @@ public class Subscriber {
     //create new subscription
     @GetMapping("/subscribe/{sub_name}/{topic}")
     public String subscribe(@PathVariable("sub_name") String sub_name, @PathVariable("topic") String topicName) throws SQLException, IOException {
-        boolean contains;
+        boolean containsTopic;
+        boolean containsSub;
         ListTopicsResult listTopics = adminClient.listTopics();
         String topicNameWithPrefix = TOPIC_PREFIX + topicName;
         String subNameWithPrefix = SUB_PREIFX + sub_name;
+
         try {
             Set<String> names = listTopics.names().get();
-            contains = names.contains(topicNameWithPrefix);
+            containsTopic = names.contains(topicNameWithPrefix);
+            containsSub = names.contains(subNameWithPrefix);
         }catch (Exception e){
             return e.getMessage();
         }
 
-        if(!contains){
-            return "topic not exist.";
+        if(!containsTopic || !containsSub){
+            return "topic or subscriber does not exist.";
         }else{
-            //TODO: update DB for this new subscription
-            newSubscriptionUpdate.update(topicNameWithPrefix, subNameWithPrefix);
+            //update DB for this new subscription
+            newSubscriptionUpdate.insert(topicNameWithPrefix, subNameWithPrefix);
             System.out.println("Subscribing topic: " + topicName + " for subscriber: " + sub_name);
         }
         return "successfully subscribed to topic: " + topicName;
@@ -117,9 +121,10 @@ public class Subscriber {
 
         StringBuilder msgList = new StringBuilder();
         msgList.append("Got messages:\n");
+
         try {
             while (true) {
-                ConsumerRecords<String, String> records = subQueConsumer.poll(100);
+                ConsumerRecords<String, String> records = subQueConsumer.poll(Duration.ofMillis(10000));
                 for (ConsumerRecord<String, String> record : records)
                 {
                     System.out.printf("Subscriber polling messages: topic = %s, partition = %d, offset = %d, message = %s",record.topic(), record.partition(), record.offset(), record.value());
@@ -131,6 +136,34 @@ public class Subscriber {
         } finally {
             subQueConsumer.close();
         }
+    }
+
+    //unsubscribe
+    @GetMapping("/unsubscribe/{sub_name}/{topic}")
+    public String unsubscribe(@PathVariable("sub_name") String sub_name, @PathVariable("topic") String topicName) throws SQLException, IOException {
+        boolean containsTopic;
+        boolean containsSub;
+        ListTopicsResult listTopics = adminClient.listTopics();
+        String topicNameWithPrefix = TOPIC_PREFIX + topicName;
+        String subNameWithPrefix = SUB_PREIFX + sub_name;
+
+        try {
+            Set<String> names = listTopics.names().get();
+            containsTopic = names.contains(topicNameWithPrefix);
+            containsSub = names.contains(subNameWithPrefix);
+        }catch (Exception e){
+            return e.getMessage();
+        }
+
+        if(!containsTopic || !containsSub){
+            return "topic or subscriber does not exist.";
+        }else{
+            //update DB for this new subscription
+            newSubscriptionUpdate.delete(topicNameWithPrefix, subNameWithPrefix);
+            System.out.println("Unsubscribing topic: " + topicName + " for subscriber: " + sub_name);
+        }
+
+        return sub_name + " unsubscribed " + topicName;
     }
 
     //remove prefix from subNameWithPrefix to get the

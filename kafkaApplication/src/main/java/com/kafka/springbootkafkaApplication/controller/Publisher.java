@@ -1,6 +1,5 @@
 package com.kafka.springbootkafkaApplication.controller;
 
-import com.kafka.springbootkafkaApplication.model.DBUpdate;
 import com.kafka.springbootkafkaApplication.service.ListenerWorker;
 import org.apache.kafka.clients.admin.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
@@ -35,6 +35,9 @@ public class Publisher {
 
     @Autowired
     private ConsumerFactory<String, String> topicListenerFactory;
+
+    @Autowired
+    private Connection conn;
 
     //publish a new topic
     @GetMapping("/newTopic/{topic}")
@@ -60,7 +63,7 @@ public class Publisher {
     private String startListening(String topicName){
         try{
             ContainerProperties containerProperties = new ContainerProperties(topicName);
-            containerProperties.setMessageListener(new ListenerWorker(this.kafkaTemplate));
+            containerProperties.setMessageListener(new ListenerWorker(this.kafkaTemplate, this.conn));
 
             ConcurrentMessageListenerContainer<String, String> container =
                     new ConcurrentMessageListenerContainer<>(
