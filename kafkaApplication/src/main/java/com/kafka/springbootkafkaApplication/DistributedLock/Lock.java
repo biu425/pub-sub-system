@@ -1,4 +1,4 @@
-package com.DistributedLock;
+package com.kafka.springbootkafkaApplication.DistributedLock;
 
 import java.io.IOException;
 import java.util.Collections;
