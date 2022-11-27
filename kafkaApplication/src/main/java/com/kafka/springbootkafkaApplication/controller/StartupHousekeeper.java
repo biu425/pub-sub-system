@@ -14,6 +14,7 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.stereotype.Component;
 
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Set;
 
@@ -25,6 +26,9 @@ import java.util.Set;
 @EnableKafka
 @Component
 public class StartupHousekeeper {
+    @Autowired
+    private Connection conn;
+
     @Autowired
     private ConsumerFactory<String, String> topicListenerFactory;
 
@@ -56,7 +60,7 @@ public class StartupHousekeeper {
     private String startListening(String topicName){
         try{
             ContainerProperties containerProperties = new ContainerProperties(topicName);
-            containerProperties.setMessageListener(new ListenerWorker(this.kafkaTemplate));
+            containerProperties.setMessageListener(new ListenerWorker(this.kafkaTemplate, this.conn));
 
             ConcurrentMessageListenerContainer<String, String> container =
                     new ConcurrentMessageListenerContainer<>(
