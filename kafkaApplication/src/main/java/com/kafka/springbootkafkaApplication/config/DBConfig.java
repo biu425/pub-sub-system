@@ -26,7 +26,7 @@ public class DBConfig {
         String oracleURL = "jdbc:mysql://" + host + ":" + port + "/" + dbName;
 
         String username = "root";
-        String password = "admin";
+        String password = "Zhy199639!";
 
         System.out.println("Connected to DB.");
 
