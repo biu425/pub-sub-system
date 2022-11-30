@@ -63,7 +63,7 @@ public class Publisher {
     private String startListening(String topicName){
         try{
             ContainerProperties containerProperties = new ContainerProperties(topicName);
-            containerProperties.setMessageListener(new ListenerWorker(this.kafkaTemplate, this.conn));
+            containerProperties.setMessageListener(new ListenerWorker(this.kafkaTemplate, this.conn, topicName));
 
             ConcurrentMessageListenerContainer<String, String> container =
                     new ConcurrentMessageListenerContainer<>(

@@ -17,6 +17,7 @@ import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.data.Stat;
 
 public class Lock {
+    private final static String zookeeperHost = "localhost:2181";
     private final static String rootLockNode = "/lock";
     private static final int timeout = 5000;
     private static final String competitor = "competitorNode";
@@ -36,7 +37,7 @@ public class Lock {
      * Connect with zookeeper host, with lock name.
      * Can have multiple lock with different lock name.
      */
-    public void connect(String zookeeperHost, String lockName) throws KeeperException, InterruptedException, IOException {
+    public void connect(String lockName) throws KeeperException, InterruptedException, IOException {
         Stat rootStat = null;
         Stat lockStat = null;
 
@@ -168,7 +169,7 @@ public class Lock {
     public static void main(String[] args) {
         Lock dl = new Lock();
         try {
-            dl.connect("localhost:2181", "testlock");
+            dl.connect( "testlock");
             dl.tryLock();
             dl.releaseLock();
         } catch (Exception e) {
