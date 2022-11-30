@@ -1,8 +1,14 @@
 ## If you do not have Kafka and Zookeeper downloaded
 - go to https://kafka.apache.org/quickstart to get the quick start
 
-##Run docker image:
-- `docker -compose  up`
+## Run Zookeeper:
+- `bin/zookeeper-server-start.sh config/zookeeper.properties`
+
+## Run Kafka:
+- `bin/kafka-server-start.sh config/server.properties`
+
+## Connect to MySQL WorkBench:
+- `Create a mysql server with port 3306. Start the mysql server`
 
 ## Endpoints:
 ### Create Topic
