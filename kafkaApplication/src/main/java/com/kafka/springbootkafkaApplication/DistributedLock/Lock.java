@@ -21,7 +21,7 @@ public class Lock {
     private final static String rootLockNode = "/lock";
     private static final int timeout = 5000;
     private static final String competitor = "competitorNode";
-    private static ZooKeeper zookeeper = null;
+    private ZooKeeper zookeeper = null;
 
     private CountDownLatch latch = new CountDownLatch(1);
     private CountDownLatch getLockLatch = new CountDownLatch(1);

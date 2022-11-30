@@ -25,12 +25,13 @@ import java.util.List;
 public class ListenerWorker implements MessageListener<String, String> {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private ElectableNode eNode = null;
+    private Lock readLock = null;
 
     /*
      * Set useLock to true if want to use distributed lock to read database.
      * Set useLock to false if want to use leader to read database.
      */
-    private final static boolean useLock = false;
+    private final static boolean useLock = true;
 
     private String fromTopic;
     private String receivedMsg;
@@ -48,6 +49,9 @@ public class ListenerWorker implements MessageListener<String, String> {
             } catch (Exception throwables) {
                 throwables.printStackTrace();
             }
+        }
+        else {
+            readLock = new Lock();
         }
     }
 
@@ -67,7 +71,6 @@ public class ListenerWorker implements MessageListener<String, String> {
 
         if (useLock) {
             try {
-                Lock readLock = new Lock();
                 readLock.connect("read");
                 readLock.tryLock();
                 System.out.println("Topic " + consumerRecord.topic() + " has the lock.");
