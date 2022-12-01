@@ -10,10 +10,8 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 import com.kafka.springbootkafkaApplication.DistributedLock.Lock;
 import com.kafka.springbootkafkaApplication.ElectableNode.ElectableNode;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.sql.Connection;
@@ -31,7 +29,7 @@ public class ListenerWorker implements MessageListener<String, String> {
      * Set useLock to true if want to use distributed lock to read database.
      * Set useLock to false if want to use leader to read database.
      */
-    private final static boolean useLock = false;
+    private final static boolean useLock = true;
 
     private String fromTopic;
     private String receivedMsg;
