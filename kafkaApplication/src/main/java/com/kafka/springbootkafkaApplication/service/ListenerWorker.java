@@ -31,7 +31,7 @@ public class ListenerWorker implements MessageListener<String, String> {
      * Set useLock to true if want to use distributed lock to read database.
      * Set useLock to false if want to use leader to read database.
      */
-    private final static boolean useLock = true;
+    private final static boolean useLock = false;
 
     private String fromTopic;
     private String receivedMsg;
@@ -111,8 +111,15 @@ public class ListenerWorker implements MessageListener<String, String> {
 
                     pStream.println(selectSQL);
 
-                    String response = buffer.readLine();
-                    if (response == "OK") {
+                    String response = null;
+                    
+                    while (response == null) {
+                        response = buffer.readLine();
+                    }
+
+                    System.out.println("reponse received: " + response);
+
+                    if (response.equals("OK")) {
                         String result = buffer.readLine();
                         subscribers = Arrays.asList(result.split(","));
                     }
