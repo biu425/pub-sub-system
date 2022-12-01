@@ -10,10 +10,8 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 import com.kafka.springbootkafkaApplication.DistributedLock.Lock;
 import com.kafka.springbootkafkaApplication.ElectableNode.ElectableNode;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.sql.Connection;
@@ -111,8 +109,15 @@ public class ListenerWorker implements MessageListener<String, String> {
 
                     pStream.println(selectSQL);
 
-                    String response = buffer.readLine();
-                    if (response == "OK") {
+                    String response = null;
+                    
+                    while (response == null) {
+                        response = buffer.readLine();
+                    }
+
+                    System.out.println("reponse received: " + response);
+
+                    if (response.equals("OK")) {
                         String result = buffer.readLine();
                         subscribers = Arrays.asList(result.split(","));
                     }
